@@ -5,6 +5,7 @@
             :url "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.10.1"]
                  [com.hubspot.jinjava/jinjava "2.5.9"]
-                 [camel-snake-kebab "0.4.2"]]
+                 [camel-snake-kebab "0.4.2"]
+                 [hiccup "1.0.5"]]
   :aot [jinjava-clj.static]
   :repl-options {:init-ns jinjava-clj.core})

@@ -1,7 +1,9 @@
 (ns jinjava-clj.core
   (:require
     [camel-snake-kebab.core :refer [->camelCase]]
-    [clojure.java.io :as io])
+    [clojure.java.io :as io]
+    ;[hiccup.core :refer [html]]
+    [jinjava-clj.module :as module])
   (:import
     com.hubspot.jinjava.loader.ResourceLocator
     com.hubspot.jinjava.lib.tag.Tag
@@ -10,7 +12,7 @@
     com.hubspot.jinjava.Jinjava
     (com.hubspot.jinjava.util
      HelperStringTokenizer
-     WhitespaceUtils)
+     #_WhitespaceUtils)
     java.io.File
     org.jinjava.CLJStatic))
 
@@ -22,25 +24,6 @@
          (getName [this] name)
          (getEndTagName [this] end-name)
          (interpret [this node interpreter] "")))
-
-(defn helper-map [i ^String s]
-  (let [[a b] (.split (WhitespaceUtils/unquote s) "=")]
-    [(if b a i) (or b a)]))
-(defn parse-helpers [node]
-  (->> node
-       .getHelpers
-       HelperStringTokenizer.
-       iterator-seq
-       (map-indexed helper-map)
-       (into {})))
-
-(def module-tag
-  (reify Tag
-         (getName [this] "module")
-         (getEndTagName [this])
-         (interpret [this node interpreter]
-                    (prn 'node node (parse-helpers node))
-                    "")))
 
 (defn el-def [name args]
   (ELFunctionDefinition.
@@ -75,14 +58,16 @@
            ["related_blog_posts"]]]
   (.registerTag context (reify-tag t)))
 
-(doseq [t [global-partial module-tag]]
+(doseq [t [global-partial module/module-tag]]
   (.registerTag context t))
 
 (def functions {"require_css" [String]
                 "get_asset_url" [String]
                 "require_js" [String]
                 "blog_popular_posts" [String Long]
-                "blog_tags" [String Long]})
+                "blog_tags" [String Long]
+                "menu" [String]
+                "blog_recent_tag_posts" [String String Long]})
 (doseq [[name args] functions]
   (.registerFunction context (el-def name args)))
 
