@@ -8,6 +8,9 @@
     com.hubspot.jinjava.lib.tag.IncludeTag
     com.hubspot.jinjava.lib.fn.ELFunctionDefinition
     com.hubspot.jinjava.Jinjava
+    (com.hubspot.jinjava.util
+     HelperStringTokenizer
+     WhitespaceUtils)
     java.io.File
     org.jinjava.CLJStatic))
 
@@ -19,6 +22,25 @@
          (getName [this] name)
          (getEndTagName [this] end-name)
          (interpret [this node interpreter] "")))
+
+(defn helper-map [i ^String s]
+  (let [[a b] (.split (WhitespaceUtils/unquote s) "=")]
+    [(if b a i) (or b a)]))
+(defn parse-helpers [node]
+  (->> node
+       .getHelpers
+       HelperStringTokenizer.
+       iterator-seq
+       (map-indexed helper-map)
+       (into {})))
+
+(def module-tag
+  (reify Tag
+         (getName [this] "module")
+         (getEndTagName [this])
+         (interpret [this node interpreter]
+                    (prn 'node node (parse-helpers node))
+                    "")))
 
 (defn el-def [name args]
   (ELFunctionDefinition.
@@ -35,7 +57,6 @@
 (def resource-locator
   (reify ResourceLocator
          (getString [this full-name encoding interpreter]
-                    (prn 'full-name full-name)
                     (as-> full-name $
                           (.replace $ "path=\"../" "")
                           (.replace $ "\"" "")
@@ -43,8 +64,7 @@
                           (io/resource $)
                           (slurp $)))))
 
-(doseq [t [["module"]
-           ["form"]
+(doseq [t [["form"]
            ["textarea"]
            ["image_src"]
            ["menu"]
@@ -54,7 +74,9 @@
            ["dnd_area" "end_dnd_area"]
            ["related_blog_posts"]]]
   (.registerTag context (reify-tag t)))
-(.registerTag context global-partial)
+
+(doseq [t [global-partial module-tag]]
+  (.registerTag context t))
 
 (def functions {"require_css" [String]
                 "get_asset_url" [String]
@@ -73,3 +95,4 @@
 (defn render-template [f]
   (.render jinjava (-> f io/resource slurp) {}))
 
+(spit "index.html" (render-template template))
