@@ -1,0 +1,8 @@
+{% macro nestedJson(item) %}
+{{item || tojson}}
+{% if item.children %}
+{% for child in item.children %}
+{{nestedJson(child)}}
+{% endfor %}
+{% endif %}
+{% endmacro %}
