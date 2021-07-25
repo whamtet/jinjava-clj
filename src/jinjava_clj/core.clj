@@ -10,13 +10,15 @@
     com.hubspot.jinjava.lib.tag.IncludeTag
     com.hubspot.jinjava.lib.fn.ELFunctionDefinition
     com.hubspot.jinjava.Jinjava
-    (com.hubspot.jinjava.util
-     HelperStringTokenizer
-     #_WhitespaceUtils)
+    com.hubspot.jinjava.JinjavaConfig
+    com.hubspot.jinjava.util.HelperStringTokenizer
     java.io.File
     org.jinjava.CLJStatic))
 
-(def jinjava (Jinjava.))
+(def config (-> (JinjavaConfig/newBuilder)
+                (.withEnableRecursiveMacroCalls true)
+                .build))
+(def jinjava (Jinjava. config))
 (def context (.getGlobalContext jinjava))
 
 (defn reify-tag [[name end-name]]
@@ -67,7 +69,8 @@
                 "blog_popular_posts" [String Long]
                 "blog_tags" [String Long]
                 "menu" [String]
-                "blog_recent_tag_posts" [String String Long]})
+                "blog_recent_tag_posts" [String String Long]
+                "inspect" [Object]})
 (doseq [[name args] functions]
   (.registerFunction context (el-def name args)))
 

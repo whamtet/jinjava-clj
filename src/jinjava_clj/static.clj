@@ -10,7 +10,8 @@
               ^:static [blogPopularPosts [String Long] java.util.List]
               ^:static [blogTags [String Long] java.util.List]
               ^:static [menu [String] Object]
-              ^:static [blogRecentTagPosts [String String Long] java.util.List]]))
+              ^:static [blogRecentTagPosts [String String Long] java.util.List]
+              ^:static [inspect [Object] Object]]))
 
 (defn -requireCss [path] "")
 (defn -getAssetUrl [path] "")
@@ -19,3 +20,4 @@
 (defn -blogTags [blog-name limit] [])
 (defn -menu [_] (walk/stringify-keys (snippets/menu)))
 (defn -blogRecentTagPosts [blog tags limit] [])
+(defn -inspect [x] (prn 'x (class x) x) "")
