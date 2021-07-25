@@ -2,7 +2,8 @@
   (:require
     [camel-snake-kebab.core :refer [->camelCase]]
     [clojure.java.io :as io]
-    ;[hiccup.core :refer [html]]
+    [clojure.string :as string]
+    [hiccup.core :refer [html]]
     [jinjava-clj.module :as module])
   (:import
     com.hubspot.jinjava.loader.ResourceLocator
@@ -80,7 +81,28 @@
   '("korumsandbox/templates/blog-archive.html" "korumsandbox/templates/case-studies2.html" "korumsandbox/templates/team.html" "korumsandbox/templates/search_results.html" "korumsandbox/templates/homepage.html" "korumsandbox/templates/people.html" "korumsandbox/templates/axceller.html" "korumsandbox/templates/contact.html" "korumsandbox/templates/mls.html" "korumsandbox/templates/howwework.html" "korumsandbox/templates/our consultants customer.html" "korumsandbox/templates/case-studies.html" "korumsandbox/templates/404.html" "korumsandbox/templates/consultants copy.html" "korumsandbox/templates/our consultants.html" "korumsandbox/templates/landing-page.html" "korumsandbox/templates/consultants.html" "korumsandbox/templates/our-story.html" "korumsandbox/templates/pandt.html" "korumsandbox/templates/clients-home.html" "korumsandbox/templates/single-post.html" "korumsandbox/templates/locations.html"))
 (def template "korumsandbox/templates/homepage.html")
 
+(def ^:private empty-str? #(-> % .trim empty?))
+(defn- before [s insert tag]
+  (let [[a b] (.split s tag)]
+    (str a insert tag b)))
+
+(defn total-css []
+  (let [css (remove empty-str? @module/css-to-print)]
+    (when (not-empty css)
+      (html [:style (string/join "\n" css)]))))
+(defn total-js []
+  (let [js (remove empty-str? @module/js-to-print)]
+    (when (not-empty js)
+      (html [:script (string/join "\n" js)]))))
+
 (defn render-template [f]
-  (.render jinjava (-> f io/resource slurp) {}))
+  (reset! module/css-to-print [])
+  (reset! module/js-to-print [])
+  (as-> f s
+        (io/resource s)
+        (slurp s)
+        (.render jinjava s {})
+        (before s (total-css) "</head>")
+        (before s (total-js) "</body>")))
 
 (spit "index.html" (render-template template))

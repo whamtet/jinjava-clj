@@ -30,11 +30,14 @@
           (str "korumsandbox/modules" $))))
 
 (defn slurp-module [path]
-  (-> path
-      resolve-path
-      (str ".module/module.html")
-      io/resource
-      slurp))
+  (let [parent-folder (-> path resolve-path (str ".module"))]
+    (for [suffix [".html" ".css" ".js"]]
+      (-> (format "%s/module%s" parent-folder suffix)
+          io/resource
+          slurp))))
+
+(def css-to-print (atom nil))
+(def js-to-print (atom nil))
 
 (def module-tag
   (reify Tag
@@ -45,6 +48,8 @@
                       (prn 'info info)
                       (case name
                         "site_logo" snippets/logo
-                        (let [raw (slurp-module path)
-                              node (.parse interpreter raw)]
+                        (let [[html css js] (slurp-module path)
+                              node (.parse interpreter html)]
+                          (swap! css-to-print conj css)
+                          (swap! js-to-print conj js)
                           (.render interpreter node false)))))))
