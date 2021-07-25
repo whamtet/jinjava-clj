@@ -7,5 +7,5 @@
 (defresource logo)
 
 (defmacro defedn [s]
-  `(def ~s (-> ~(str s ".edn") io/resource slurp read-string)))
+  `(defn ~s [] (-> ~(str s ".edn") io/resource slurp read-string)))
 (defedn menu)

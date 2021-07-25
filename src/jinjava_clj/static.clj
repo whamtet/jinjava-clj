@@ -17,5 +17,5 @@
 (defn -requireJs [path] "")
 (defn -blogPopularPosts [path limit] [])
 (defn -blogTags [blog-name limit] [])
-(defn -menu [_] (walk/stringify-keys snippets/menu))
+(defn -menu [_] (walk/stringify-keys (snippets/menu)))
 (defn -blogRecentTagPosts [blog tags limit] [])
