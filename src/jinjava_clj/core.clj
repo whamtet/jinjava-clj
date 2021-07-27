@@ -2,9 +2,10 @@
   (:require
     [camel-snake-kebab.core :refer [->camelCase]]
     [clojure.java.io :as io]
-    [clojure.string :as string]
-    [hiccup.core :refer [html]]
-    [jinjava-clj.module :as module])
+    [jinjava-clj.assets :as assets]
+    [jinjava-clj.module :as module]
+    [jinjava-clj.snippets :as snippets]
+    [jinjava-clj.tag :as tag])
   (:import
     com.hubspot.jinjava.loader.ResourceLocator
     com.hubspot.jinjava.lib.tag.Tag
@@ -21,12 +22,6 @@
                 .build))
 (def jinjava (Jinjava. config))
 (def context (.getGlobalContext jinjava))
-
-(defn reify-tag [[name end-name]]
-  (reify Tag
-         (getName [this] name)
-         (getEndTagName [this] end-name)
-         (interpret [this node interpreter] "")))
 
 (defn el-def [name args]
   (ELFunctionDefinition.
@@ -59,7 +54,7 @@
            ["rich_text"]
            ["dnd_area" "end_dnd_area"]
            ["related_blog_posts"]]]
-  (.registerTag context (reify-tag t)))
+  (.registerTag context (tag/reify-tag t)))
 
 (doseq [t [global-partial module/module-tag]]
   (.registerTag context t))
@@ -81,28 +76,17 @@
   '("korumsandbox/templates/blog-archive.html" "korumsandbox/templates/case-studies2.html" "korumsandbox/templates/team.html" "korumsandbox/templates/search_results.html" "korumsandbox/templates/homepage.html" "korumsandbox/templates/people.html" "korumsandbox/templates/axceller.html" "korumsandbox/templates/contact.html" "korumsandbox/templates/mls.html" "korumsandbox/templates/howwework.html" "korumsandbox/templates/our consultants customer.html" "korumsandbox/templates/case-studies.html" "korumsandbox/templates/404.html" "korumsandbox/templates/consultants copy.html" "korumsandbox/templates/our consultants.html" "korumsandbox/templates/landing-page.html" "korumsandbox/templates/consultants.html" "korumsandbox/templates/our-story.html" "korumsandbox/templates/pandt.html" "korumsandbox/templates/clients-home.html" "korumsandbox/templates/single-post.html" "korumsandbox/templates/locations.html"))
 (def template "korumsandbox/templates/homepage.html")
 
-(def ^:private empty-str? #(-> % .trim empty?))
-(defn- before [s insert tag]
+(defn- before [s tag & rest] ;;TODO
   (let [[a b] (.split s tag)]
-    (str a insert tag b)))
-
-(defn total-css []
-  (let [css (remove empty-str? @module/css-to-print)]
-    (when (not-empty css)
-      (html [:style "\n" (string/join "\n" css) "\n"] "\n"))))
-(defn total-js []
-  (let [js (remove empty-str? @module/js-to-print)]
-    (when (not-empty js)
-      (html [:script "\n" (string/join "\n" js) "\n"] "\n"))))
+    (apply str (concat [a] rest [tag b]))))
 
 (defn render-template [f]
-  (reset! module/css-to-print [])
-  (reset! module/js-to-print [])
+  (assets/reset-stack!)
   (as-> f s
         (io/resource s)
         (slurp s)
         (.render jinjava s {})
-        (before s (total-css) "</head>")
-        (before s (total-js) "</body>")))
+        (before s "</head>" snippets/jquery (assets/total-css))
+        (before s "</body>" (assets/total-js))))
 
 (spit "out/index.html" (render-template template))

@@ -2,7 +2,7 @@
   (:require
     [clojure.java.io :as io]
     [clojure.walk :as walk]
-    [hiccup.core :refer [html]]
+    [jinjava-clj.assets :as assets]
     [jinjava-clj.snippets :as snippets])
   (:import
     java.io.File)
@@ -17,7 +17,9 @@
               ^:static [blogRecentTagPosts [String String Long] java.util.List]
               ^:static [inspect [Object] Object]]))
 
-(defn -requireCss [href] (html [:link {:type "text/css" :rel "stylesheet" :href href}] "\n"))
+(defn -requireCss [href]
+  (assets/append-css [:link {:type "text/css" :rel "stylesheet" :href href}])
+  "")
 (defn -getAssetUrl [path]
   (let [path (.replace path "../" "")
         src (-> (str "korumsandbox/" path) io/resource slurp)
@@ -26,7 +28,9 @@
     (io/copy src target)
     path))
 
-(defn -requireJs [path] (html [:script {:src path}] "\n"))
+(defn -requireJs [path]
+  (assets/append-js [:script {:src path}])
+  "")
 (defn -blogPopularPosts [path limit] [])
 (defn -blogTags [blog-name limit] [])
 (defn -menu [_] (walk/stringify-keys (snippets/menu)))
