@@ -1,6 +1,5 @@
 (ns jinjava-clj.assets
   (:require
-    [clojure.string :as string]
     [hiccup.core :refer [html]]))
 
 (def css-to-print (atom nil))
@@ -9,15 +8,22 @@
   (reset! css-to-print [])
   (reset! js-to-print []))
 
-(def ^:private empty-str? #(-> % .trim empty?))
-(defn total-css [] #_
-  (let [css (remove empty-str? css-to-print)]
-    (when (not-empty css)
-      (html [:style "\n" (string/join "\n" css) "\n"] "\n"))))
-(defn total-js [] #_
-  (let [js (remove empty-str? js-to-print)]
-    (when (not-empty js)
-      (html [:script "\n" (string/join "\n" js) "\n"] "\n"))))
+(defn- break-after [x] (list x "\n"))
+(defn- condense [header items]
+  (if (-> items first string?)
+    (list [header (map break-after items)])
+    items))
+
+(defn- render [items header]
+  (when-let [items (->> items (filter identity) not-empty)]
+    (->> items
+         (partition-by string?)
+         (mapcat #(condense header %))
+         (map break-after)
+         html)))
+
+(defn total-css [] (render @css-to-print :style))
+(defn total-js [] (render @js-to-print :script))
 
 (defn append-css [css]
   (swap! css-to-print conj css))

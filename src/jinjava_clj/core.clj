@@ -80,13 +80,23 @@
   (let [[a b] (.split s tag)]
     (apply str (concat [a] rest [tag b]))))
 
+(def ^:private m
+  {"standard_header_includes" "standard_header_includes"
+   "standard_footer_includes" "standard_footer_includes"})
+(defn- header []
+  (str snippets/jquery "\n"
+       snippets/header-prefix "\n"
+       (assets/total-css)
+       snippets/header-suffix "\n"))
+(def ^:private footer assets/total-js)
+
 (defn render-template [f]
   (assets/reset-stack!)
   (as-> f s
         (io/resource s)
         (slurp s)
-        (.render jinjava s {})
-        (before s "</head>" snippets/jquery (assets/total-css))
-        (before s "</body>" (assets/total-js))))
+        (.render jinjava s m)
+        (.replace s "standard_header_includes" (header))
+        (.replace s "standard_footer_includes" (footer))))
 
 (spit "out/index.html" (render-template template))

@@ -7,6 +7,8 @@
 (defresource logo)
 (defresource form-home)
 (defresource jquery)
+(defresource header-prefix)
+(defresource header-suffix)
 
 (defmacro defedn [s]
   `(defn ~s [] (-> ~(str s ".edn") io/resource slurp read-string)))
