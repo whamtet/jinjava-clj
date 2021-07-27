@@ -89,11 +89,11 @@
 (defn total-css []
   (let [css (remove empty-str? @module/css-to-print)]
     (when (not-empty css)
-      (html [:style (string/join "\n" css)]))))
+      (html [:style "\n" (string/join "\n" css) "\n"] "\n"))))
 (defn total-js []
   (let [js (remove empty-str? @module/js-to-print)]
     (when (not-empty js)
-      (html [:script (string/join "\n" js)]))))
+      (html [:script "\n" (string/join "\n" js) "\n"] "\n"))))
 
 (defn render-template [f]
   (reset! module/css-to-print [])
@@ -105,4 +105,4 @@
         (before s (total-css) "</head>")
         (before s (total-js) "</body>")))
 
-(spit "index.html" (render-template template))
+(spit "out/index.html" (render-template template))
