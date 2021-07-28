@@ -20,31 +20,18 @@
        (map-indexed helper-map)
        (into {})))
 
-(def form
-  (reify Tag
-         (getName [this] "form")
-         (getEndTagName [this])
-         (interpret [this node interpreter]
-                    (let [info (parse-helpers node)]
-                      (snippets/get-snippet "form")))))
-
-(def textarea
-  (reify Tag
-         (getName [this] "textarea")
-         (getEndTagName [this])
-         (interpret [this node interpreter]
-                    (snippets/get-snippet "textarea"))))
-
 (defn reify-tag [[name end-name]]
   (case name
-    "form" form
-    "textarea" textarea
     (reify Tag
            (getName [this] name)
            (getEndTagName [this] end-name)
            (interpret [this node interpreter]
-                      (println "interpreting" name (stack/get-stack))
-                      ""))))
+                      (let [info (parse-helpers node)]
+                        (or (-> info :name snippets/get-snippet)
+                            (snippets/get-snippet name)
+                            (do
+                              (println "interpreting" name (stack/get-stack) (parse-helpers node))
+                              "")))))))
 
 (defn add-to-context [context]
   (doseq [t [["form"]
