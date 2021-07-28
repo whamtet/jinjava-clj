@@ -83,7 +83,15 @@
    m
    (partition 2 args)))
 (def m2
-  (assoc-dot m "module.ctasignup_form.form_id" 123))
+  (assoc-dot m
+             "module.ctasignup_form.form_id" 123
+             "module.korum_slide_group"
+             [{"image_field" ;; this itself supports multiple images
+               [{"src" "https://www.korumlegal.com/hubfs/New%20Home%20Page%20Banner%201%20%282%29.jpg"}]
+               "text_field1" "We partner with you to support your legal needs </br>throughout Asia and beyond"
+               "text_fieldcta" "Submit a query"
+               "title" "Your gateway </br>to Asia."
+               "banner_fieldcta" {"url" {"href" "https://www.korumlegal.com/contact-us"}}}]))
 
 (defn- header []
   (str snippets/jquery "\n"
