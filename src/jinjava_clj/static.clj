@@ -34,5 +34,5 @@
 (defn -blogPopularPosts [path limit] [])
 (defn -blogTags [blog-name limit] [])
 (defn -menu [_] (walk/stringify-keys (snippets/menu)))
-(defn -blogRecentTagPosts [blog tags limit] [])
+(defn -blogRecentTagPosts [blog tags limit] (snippets/blog-recent))
 (defn -inspect [x] (prn 'x (class x) x) "")

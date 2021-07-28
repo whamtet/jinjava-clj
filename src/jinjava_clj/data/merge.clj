@@ -20,9 +20,9 @@
 
 (defn merge-data [template datum]
   (reduce
-   (fn [m [k v]] (assoc-in m (-> k .trim (.split "\\.") vec) v))
+   (fn [m [k v]] (assoc-in m (-> k .trim (.split "\\.") rest vec) v))
    {}
    (flatten-together template datum)))
 
-(spit "resources/blog_recent.edn"
+(spit "resources/blog-recent.edn"
       (pr-str (map #(merge-data actual-template %) actual-data)))

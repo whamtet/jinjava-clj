@@ -14,6 +14,7 @@
 (defmacro defedn [s]
   `(defn ~s [] (-> ~(str s ".edn") io/resource slurp read-string)))
 (defedn menu)
+(defedn blog-recent)
 
 (def small-data
   {"homepage"
