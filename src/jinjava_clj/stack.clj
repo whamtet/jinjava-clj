@@ -3,8 +3,8 @@
 (def stack (atom []))
 
 (defmacro with-stack [label & body]
-  `(let [_# (swap! stack conj ~label)
-         res# (do ~@body)]
-    (swap! stack pop)
-    res#))
+  `(do
+    (swap! stack conj ~label)
+    (try ~@body (finally (swap! stack pop)))))
+
 (defn get-stack [] @stack)

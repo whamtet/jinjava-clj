@@ -3,6 +3,7 @@
     [clojure.java.io :as io]
     [jinjava-clj.assets :as assets]
     [jinjava-clj.snippets :as snippets]
+    [jinjava-clj.stack :as stack]
     [jinjava-clj.tag :as tag])
   (:import
     com.hubspot.jinjava.lib.tag.Tag))
@@ -35,4 +36,4 @@
                               node (.parse interpreter html)]
                           (assets/append-css css)
                           (assets/append-js js)
-                          (.render interpreter node false)))))))
+                          (stack/with-stack name (.render interpreter node false))))))))

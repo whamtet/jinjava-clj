@@ -75,6 +75,16 @@
 (def ^:private m
   {"standard_header_includes" "standard_header_includes"
    "standard_footer_includes" "standard_footer_includes"})
+
+(defn assoc-dot [m & args]
+  (reduce
+   (fn [m [k v]]
+     (assoc-in m (vec (.split k "\\.")) v))
+   m
+   (partition 2 args)))
+(def m2
+  (assoc-dot m "module.ctasignup_form.form_id" 123))
+
 (defn- header []
   (str snippets/jquery "\n"
        snippets/header-prefix "\n"
@@ -87,7 +97,7 @@
   (as-> f s
         (io/resource s)
         (slurp s)
-        (stack/with-stack "homepage" (.render jinjava s m))
+        (stack/with-stack "homepage" (.render jinjava s m2))
         (.replace s "standard_header_includes" (header))
         (.replace s "standard_footer_includes" (footer))))
 

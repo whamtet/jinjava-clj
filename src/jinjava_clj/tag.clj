@@ -26,11 +26,19 @@
          (getEndTagName [this])
          (interpret [this node interpreter]
                     (let [info (parse-helpers node)]
-                      snippets/form-home))))
+                      (snippets/get-snippet "form")))))
+
+(def textarea
+  (reify Tag
+         (getName [this] "textarea")
+         (getEndTagName [this])
+         (interpret [this node interpreter]
+                    (snippets/get-snippet "textarea"))))
 
 (defn reify-tag [[name end-name]]
   (case name
     "form" form
+    "textarea" textarea
     (reify Tag
            (getName [this] name)
            (getEndTagName [this] end-name)
