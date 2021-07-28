@@ -1,5 +1,5 @@
 {% macro nestedJson(item) %}
-{{item || tojson}}
+<script>console.log(`{{item || tojson}}`)</script>
 {% if item.children %}
 {% for child in item.children %}
 {{nestedJson(child)}}

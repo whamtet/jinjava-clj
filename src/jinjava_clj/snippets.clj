@@ -3,13 +3,13 @@
     [clojure.java.io :as io]
     [jinjava-clj.stack :as stack]))
 
-(defmacro defresource [s]
-  `(def ~s (-> ~(str s ".html") io/resource slurp)))
-(defresource logo)
-(defresource form-home)
-(defresource jquery)
-(defresource header-prefix)
-(defresource header-suffix)
+(defmacro defresources [& ss]
+  `(do ~@(for [s ss] `(def ~s (-> ~(str s ".html") io/resource slurp)))))
+(defresources logo)
+(defresources form-home form-home-cta)
+(defresources jquery)
+(defresources header-prefix)
+(defresources header-suffix)
 
 (defmacro defedn [s]
   `(defn ~s [] (-> ~(str s ".edn") io/resource slurp read-string)))
@@ -20,7 +20,7 @@
    {"textarea" "Subscribe for our latest news stories"
     "form" form-home
     "ctasignup"
-    {"form" "fffuck"}}})
+    {"form" form-home-cta}}})
 
 (defn get-snippet [k]
   (get-in small-data (conj (stack/get-stack) k)))
