@@ -5,6 +5,7 @@
     [jinjava-clj.assets :as assets]
     [jinjava-clj.module :as module]
     [jinjava-clj.snippets :as snippets]
+    [jinjava-clj.stack :as stack]
     [jinjava-clj.tag :as tag])
   (:import
     com.hubspot.jinjava.loader.ResourceLocator
@@ -45,16 +46,7 @@
                           (io/resource $)
                           (slurp $)))))
 
-(doseq [t [["form"]
-           ["textarea"]
-           ["image_src"]
-           ["menu"]
-           ["icon"]
-           ["text"]
-           ["rich_text"]
-           ["dnd_area" "end_dnd_area"]
-           ["related_blog_posts"]]]
-  (.registerTag context (tag/reify-tag t)))
+(tag/add-to-context context)
 
 (doseq [t [global-partial module/module-tag]]
   (.registerTag context t))
@@ -95,7 +87,7 @@
   (as-> f s
         (io/resource s)
         (slurp s)
-        (.render jinjava s m)
+        (stack/with-stack "homepage" (.render jinjava s m))
         (.replace s "standard_header_includes" (header))
         (.replace s "standard_footer_includes" (footer))))
 

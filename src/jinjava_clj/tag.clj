@@ -1,6 +1,7 @@
 (ns jinjava-clj.tag
   (:require
-    [jinjava-clj.snippets :as snippets])
+    [jinjava-clj.snippets :as snippets]
+    [jinjava-clj.stack :as stack])
   (:import
     com.hubspot.jinjava.lib.tag.Tag
     com.hubspot.jinjava.util.HelperStringTokenizer))
@@ -33,4 +34,18 @@
     (reify Tag
            (getName [this] name)
            (getEndTagName [this] end-name)
-           (interpret [this node interpreter] ""))))
+           (interpret [this node interpreter]
+                      (println "interpreting" name (stack/get-stack))
+                      ""))))
+
+(defn add-to-context [context]
+  (doseq [t [["form"]
+             ["textarea"]
+             ["image_src"]
+             ["menu"]
+             ["icon"]
+             ["text"]
+             ["rich_text"]
+             ["dnd_area" "end_dnd_area"]
+             ["related_blog_posts"]]]
+    (.registerTag context (reify-tag t))))
