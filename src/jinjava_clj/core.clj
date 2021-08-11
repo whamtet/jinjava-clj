@@ -2,6 +2,7 @@
   (:require
     [camel-snake-kebab.core :refer [->camelCase]]
     [clojure.java.io :as io]
+    [clojure.java.shell :refer [sh]]
     [jinjava-clj.assets :as assets]
     [jinjava-clj.module :as module]
     [jinjava-clj.snippets :as snippets]
@@ -66,32 +67,15 @@
 
 (def templates
   '("korumsandbox/templates/blog-archive.html" "korumsandbox/templates/case-studies2.html" "korumsandbox/templates/team.html" "korumsandbox/templates/search_results.html" "korumsandbox/templates/homepage.html" "korumsandbox/templates/people.html" "korumsandbox/templates/axceller.html" "korumsandbox/templates/contact.html" "korumsandbox/templates/mls.html" "korumsandbox/templates/howwework.html" "korumsandbox/templates/our consultants customer.html" "korumsandbox/templates/case-studies.html" "korumsandbox/templates/404.html" "korumsandbox/templates/consultants copy.html" "korumsandbox/templates/our consultants.html" "korumsandbox/templates/landing-page.html" "korumsandbox/templates/consultants.html" "korumsandbox/templates/our-story.html" "korumsandbox/templates/pandt.html" "korumsandbox/templates/clients-home.html" "korumsandbox/templates/single-post.html" "korumsandbox/templates/locations.html"))
-(def template "korumsandbox/templates/homepage.html")
+(def template "korumsandbox/templates/insights.html")
 
 (defn- before [s tag & rest] ;;TODO
   (let [[a b] (.split s tag)]
     (apply str (concat [a] rest [tag b]))))
 
-(def ^:private m
+(def ^:private base-info
   {"standard_header_includes" "standard_header_includes"
    "standard_footer_includes" "standard_footer_includes"})
-
-(defn assoc-dot [m & args]
-  (reduce
-   (fn [m [k v]]
-     (assoc-in m (vec (.split k "\\.")) v))
-   m
-   (partition 2 args)))
-(def m2
-  (assoc-dot m
-             "module.ctasignup_form.form_id" 123
-             "module.korum_slide_group"
-             [{"image_field" ;; this itself supports multiple images
-               [{"src" "https://www.korumlegal.com/hubfs/New%20Home%20Page%20Banner%201%20%282%29.jpg"}]
-               "text_field1" "We partner with you to support your legal needs </br>throughout Asia and beyond"
-               "text_fieldcta" "Submit a query"
-               "title" "Your gateway </br>to Asia."
-               "banner_fieldcta" {"url" {"href" "https://www.korumlegal.com/contact-us"}}}]))
 
 (defn- header []
   (str snippets/jquery "\n"
@@ -100,13 +84,15 @@
        snippets/header-suffix "\n"))
 (def ^:private footer assets/total-js)
 
-(defn render-template [f]
-  (assets/reset-stack!)
-  (as-> f s
-        (io/resource s)
-        (slurp s)
-        (stack/with-stack "homepage" (.render jinjava s m2))
-        (.replace s "standard_header_includes" (header))
-        (.replace s "standard_footer_includes" (footer))))
+(defn render-template [f m]
+  (let [[_ stack-base] (re-find #".*/(.+)\.html" template)]
+    (assets/reset-stack!)
+    (as-> f s
+          (io/resource s)
+          (slurp s)
+          (stack/with-stack stack-base (.render jinjava s (merge base-info m)))
+          (.replace s "standard_header_includes" (header))
+          (.replace s "standard_footer_includes" (footer)))))
 
-(spit "out/index.html" (render-template template))
+(sh "./pull.sh")
+(spit "out/index.html" (render-template template {}))

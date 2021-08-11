@@ -15,7 +15,7 @@
     items))
 
 (defn- render [items header]
-  (when-let [items (->> items (filter identity) not-empty)]
+  (when-let [items (->> items (filter not-empty) not-empty)]
     (->> items
          (partition-by string?)
          (mapcat #(condense header %))
