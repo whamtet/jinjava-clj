@@ -94,5 +94,5 @@
           (.replace s "standard_header_includes" (header))
           (.replace s "standard_footer_includes" (footer)))))
 
-(sh "./pull.sh")
+;(sh "./pull.sh")
 (spit "out/index.html" (render-template template {}))

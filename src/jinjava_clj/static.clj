@@ -31,7 +31,13 @@
 (defn -requireJs [path]
   (assets/append-js [:script {:src path}])
   "")
-(defn -blogPopularPosts [path limit] [])
+
+(def ^:private case-studies-id "52801386887")
+(defn -blogPopularPosts [id limit]
+  (->> (condp = id case-studies-id snippets/case-studies snippets/blog-posts)
+       cycle
+       (take limit)))
+
 (defn -blogTags [blog-name limit] [])
 (defn -menu [_] (walk/stringify-keys (snippets/menu)))
 (defn -blogRecentTagPosts [blog tags limit] (snippets/blog-recent))
