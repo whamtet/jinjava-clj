@@ -17,13 +17,15 @@
               ^:static [blogRecentTagPosts [String String Long] java.util.List]
               ^:static [inspect [Object] Object]]))
 
+(def ^:dynamic *out-dir*)
+
 (defn -requireCss [href]
   (assets/append-css [:link {:type "text/css" :rel "stylesheet" :href href}])
   "")
 (defn -getAssetUrl [path]
   (let [path (.replace path "../" "")
         src (-> (str "korumsandbox/" path) io/resource slurp)
-        target (File. (str "out/" path))]
+        target (File. (str *out-dir* "/" path))]
     (-> target .getParentFile .mkdirs)
     (io/copy src target)
     path))

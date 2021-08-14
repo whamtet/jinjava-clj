@@ -7,6 +7,7 @@
     [jinjava-clj.module :as module]
     [jinjava-clj.snippets :as snippets]
     [jinjava-clj.stack :as stack]
+    [jinjava-clj.static :as static]
     [jinjava-clj.tag :as tag])
   (:import
     com.hubspot.jinjava.loader.ResourceLocator
@@ -65,10 +66,6 @@
 
 (.setResourceLocator jinjava resource-locator)
 
-(def templates
-  '("korumsandbox/templates/blog-archive.html" "korumsandbox/templates/case-studies2.html" "korumsandbox/templates/team.html" "korumsandbox/templates/search_results.html" "korumsandbox/templates/homepage.html" "korumsandbox/templates/people.html" "korumsandbox/templates/axceller.html" "korumsandbox/templates/contact.html" "korumsandbox/templates/mls.html" "korumsandbox/templates/howwework.html" "korumsandbox/templates/our consultants customer.html" "korumsandbox/templates/case-studies.html" "korumsandbox/templates/404.html" "korumsandbox/templates/consultants copy.html" "korumsandbox/templates/our consultants.html" "korumsandbox/templates/landing-page.html" "korumsandbox/templates/consultants.html" "korumsandbox/templates/our-story.html" "korumsandbox/templates/pandt.html" "korumsandbox/templates/clients-home.html" "korumsandbox/templates/single-post.html" "korumsandbox/templates/locations.html"))
-(def template "korumsandbox/templates/insights.html")
-
 (defn- before [s tag & rest] ;;TODO
   (let [[a b] (.split s tag)]
     (apply str (concat [a] rest [tag b]))))
@@ -84,15 +81,17 @@
        snippets/header-suffix "\n"))
 (def ^:private footer assets/total-js)
 
-(defn render-template [f m]
-  (let [[_ stack-base] (re-find #".*/(.+)\.html" template)]
-    (assets/reset-stack!)
-    (as-> f s
-          (io/resource s)
-          (slurp s)
-          (stack/with-stack stack-base (.render jinjava s (merge base-info m)))
-          (.replace s "standard_header_includes" (header))
-          (.replace s "standard_footer_includes" (footer)))))
+(defn render-template [f stack-base m]
+  (assets/reset-stack!)
+  (as-> f s
+        (io/resource s)
+        (slurp s)
+        (stack/with-stack stack-base (.render jinjava s (merge base-info m)))
+        (.replace s "standard_header_includes" (header))
+        (.replace s "standard_footer_includes" (footer))))
+(defn spit-template [template stack-base out m]
+  (binding [static/*out-dir* out]
+    (spit (str out "/index.html") (render-template template stack-base m))))
 
-;(sh "./pull.sh")
-(spit "out/index.html" (render-template template {}))
+(spit-template "korumsandbox/templates/insights.html" "insights" "out/insights" {})
+(spit-template "korumsandbox/templates/insights2.html" "insights" "out/insights2" {})
