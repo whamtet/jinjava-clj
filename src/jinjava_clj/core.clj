@@ -93,5 +93,13 @@
   (binding [static/*out-dir* out]
     (spit (str out "/index.html") (render-template template stack-base m))))
 
-(spit-template "korumsandbox/templates/insights.html" "insights" "out/insights" {})
-(spit-template "korumsandbox/templates/insights2.html" "insights" "out/insights2" {})
+(require '[clojure.java.shell :refer [sh]])
+(require '[juxt.dirwatch :refer (watch-dir)])
+(defonce _
+         (watch-dir
+          (fn [e]
+            (prn e)
+            (spit-template "korumsandbox/templates/insights.html" "insights" "out/insights" {})
+            (spit-template "korumsandbox/templates/homepage.html" "homepage" "out/home" snippets/home-data)
+            (println "\007"))
+          (java.io.File. "resources/korumsandbox")))

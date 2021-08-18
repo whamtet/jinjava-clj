@@ -9,6 +9,7 @@
                  [hiccup "1.0.5"]
                  [clj-tagsoup/clj-tagsoup "0.3.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/data.xml "0.0.8"]
-                 [org.clojure/data.json "2.4.0"]]
+                 [org.clojure/data.json "2.4.0"]
+                 [juxt/dirwatch "0.2.5"]]
   :aot [jinjava-clj.static]
   :repl-options {:init-ns jinjava-clj.core})
