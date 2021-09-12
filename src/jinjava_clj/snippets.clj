@@ -8,6 +8,8 @@
 (defmacro defresources [& ss]
   `(do ~@(for [s ss] `(def ~s (-> ~(str s ".html") io/resource slurp)))))
 (defresources logo)
+(defresources search)
+(defresources blog-subscribe)
 (defresources form-home form-home-cta)
 (defresources jquery)
 (defresources header-prefix)
@@ -19,6 +21,7 @@
 (defedn menu)
 (defedn blog-recent)
 
+;; used within tags
 (def small-data
   {"homepage"
    {"footer_cp" "Copyright © Korum Consulting Limited (t/a KorumLegal) 2020. All Rights Reserved."
@@ -37,7 +40,10 @@
     "footer_menu1" footer-menu1
     "footer_menu2" footer-menu2
     "footer_menu3" footer-menu3
-    "footer_cp" "Copyright © Korum Consulting Limited (t/a KorumLegal) 2020. All Rights Reserved."}})
+    "footer_cp" "Copyright © Korum Consulting Limited (t/a KorumLegal) 2020. All Rights Reserved."
+    "insights"
+    {"image_src" "https://offers.korumlegal.com/hubfs/Copy%20of%20Copy%20of%20Whitepaper%20Design%20(1).png"
+     "image_src2" "https://offers.korumlegal.com/hubfs/Copy%20of%20Whitepaper%20Design%20(1).png"}}})
 
 (defn get-snippet [k]
   (get-in small-data (conj (stack/get-stack) k)))
@@ -52,12 +58,15 @@
      "text_fieldcta" "Submit a query"
      "title" "Your gateway </br>to Asia."
      "banner_fieldcta" {"url" {"href" "https://www.korumlegal.com/contact-us"}}}
-    #_{"image_field" ;; this itself supports multiple images
-       [{"src" "https://f.hubspotusercontent00.net/hubfs/2155006/sunny%20analytics.jpg"}]
-       "text_field1" "We partner with you to support your legal needs </br>throughout Asia and beyond"
-       "text_fieldcta" "Submit a query"
-       "title" "Your gateway </br>to Asia."
-       "banner_fieldcta" {"url" {"href" "https://www.korumlegal.com/contact-us"}}}]))
+    {"image_field" ;; this itself supports multiple images
+     [{"src" "https://f.hubspotusercontent00.net/hubfs/2155006/sunny%20analytics.jpg"}]
+     "text_field1" "We partner with you to support your legal needs </br>throughout Asia and beyond"
+     "text_fieldcta" "Submit a query"
+     "title" "Your gateway </br>to Asia."
+     "banner_fieldcta" {"url" {"href" "https://www.korumlegal.com/contact-us"}}}]
+   "module.news_items"
+   (for [i (range 3)]
+     {"text" (format "Today we have great news %s" (inc i))})))
 
 (def blog-posts
   (util/dotize
@@ -74,11 +83,15 @@
 
 (def case-studies
   (util/dotize
-    [{"absolute_url" "https://todo"
-      "featured_image" "https://www.korumlegal.com/hubfs/Untitled%20design%20(10).jpg"
-      "name" "Asia Retail Conglomerate"
-      "post_summary" "After conducting a review of various technology solutions for contract lifecycle management, the customer was dissatisfied with their own findings. They approached KorumLegal to expedite the process to identify a relevant tech solution, and then provide ongoing support for the implementation."}
-     {"absolute_url" "https://todo"
-      "featured_image" "https://www.korumlegal.com/hubfs/Untitled%20design%20(11).jpg"
-      "name" "Swiss Private Wealth and Asset Management Bank"
-      "post_summary" "Customer had an extremely lean legal team who were dealing with complex M&A, counselling and business-as-usual document review without any technology tools beyond their email inbox. Customer wanted to implement technology to improve velocity and visibility, and to adapt and implement automated workflows within their processes."}]))
+   [{"absolute_url" "https://todo"
+     "featured_image" "https://www.korumlegal.com/hubfs/Untitled%20design%20(10).jpg"
+     "blog_author.display_name" "KorumLegal"
+     "html_title" "My Case Study"
+     "name" "Asia Retail Conglomerate"
+     "post_summary" "After conducting a review of various technology solutions for contract lifecycle management, the customer was dissatisfied with their own findings. They approached KorumLegal to expedite the process to identify a relevant tech solution, and then provide ongoing support for the implementation."}
+    {"absolute_url" "https://todo"
+     "featured_image" "https://www.korumlegal.com/hubfs/Untitled%20design%20(11).jpg"
+     "blog_author.display_name" "KorumLegal"
+     "html_title" "My Case Study"
+     "name" "Swiss Private Wealth and Asset Management Bank"
+     "post_summary" "Customer had an extremely lean legal team who were dealing with complex M&A, counselling and business-as-usual document review without any technology tools beyond their email inbox. Customer wanted to implement technology to improve velocity and visibility, and to adapt and implement automated workflows within their processes."}]))

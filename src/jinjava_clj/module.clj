@@ -32,6 +32,8 @@
                       (prn 'info info)
                       (case name
                         "site_logo" snippets/logo
+                        "site_search" snippets/search
+                        "blog_subscribe_form" snippets/blog-subscribe
                         (let [[html css js] (slurp-module path)
                               node (.parse interpreter html)]
                           (assets/append-css css)

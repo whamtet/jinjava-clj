@@ -1,24 +1,25 @@
 (ns jinjava-clj.core
-  (:require
-    [camel-snake-kebab.core :refer [->camelCase]]
-    [clojure.java.io :as io]
-    [clojure.java.shell :refer [sh]]
-    [jinjava-clj.assets :as assets]
-    [jinjava-clj.module :as module]
-    [jinjava-clj.snippets :as snippets]
-    [jinjava-clj.stack :as stack]
-    [jinjava-clj.static :as static]
-    [jinjava-clj.tag :as tag])
-  (:import
-    com.hubspot.jinjava.loader.ResourceLocator
-    com.hubspot.jinjava.lib.tag.Tag
-    com.hubspot.jinjava.lib.tag.IncludeTag
-    com.hubspot.jinjava.lib.fn.ELFunctionDefinition
-    com.hubspot.jinjava.Jinjava
-    com.hubspot.jinjava.JinjavaConfig
-    com.hubspot.jinjava.util.HelperStringTokenizer
-    java.io.File
-    org.jinjava.CLJStatic))
+    (:require
+      [camel-snake-kebab.core :refer [->camelCase]]
+      [clojure.java.io :as io]
+      [clojure.java.shell :refer [sh]]
+      [jinjava-clj.assets :as assets]
+      [jinjava-clj.module :as module]
+      [jinjava-clj.snippets :as snippets]
+      [jinjava-clj.stack :as stack]
+      [jinjava-clj.static :as static]
+      [jinjava-clj.tag :as tag]
+      [jinjava-clj.util :as util])
+    (:import
+      com.hubspot.jinjava.loader.ResourceLocator
+      com.hubspot.jinjava.lib.tag.Tag
+      com.hubspot.jinjava.lib.tag.IncludeTag
+      com.hubspot.jinjava.lib.fn.ELFunctionDefinition
+      com.hubspot.jinjava.Jinjava
+      com.hubspot.jinjava.JinjavaConfig
+      com.hubspot.jinjava.util.HelperStringTokenizer
+      java.io.File
+      org.jinjava.CLJStatic))
 
 (def config (-> (JinjavaConfig/newBuilder)
                 (.withEnableRecursiveMacroCalls true)
@@ -91,15 +92,23 @@
         (.replace s "standard_footer_includes" (footer))))
 (defn spit-template [template stack-base out m]
   (binding [static/*out-dir* out]
-    (spit (str out "/index.html") (render-template template stack-base m))))
+           (spit (str out "/index.html") (render-template template stack-base m))))
 
-(require '[clojure.java.shell :refer [sh]])
+(defonce o (Object.))
+(defn generate
+  ([]
+   (locking o
+             (spit-template
+              "korumsandbox/templates/blog-archive2.html"
+              "blog"
+              "out/blog"
+              {"contents" {}}))
+   (println "\007"))
+  ([e] (prn e) (generate)))
+
 (require '[juxt.dirwatch :refer (watch-dir)])
 (defonce _
-         (watch-dir
-          (fn [e]
-            (prn e)
-            (spit-template "korumsandbox/templates/insights.html" "insights" "out/insights" {})
-            (spit-template "korumsandbox/templates/homepage.html" "homepage" "out/home" snippets/home-data)
-            (println "\007"))
-          (java.io.File. "resources/korumsandbox")))
+  (watch-dir
+   #'generate
+   (java.io.File. "resources/korumsandbox")))
+(generate) ;; once for good luck!
